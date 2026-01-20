@@ -1,28 +1,21 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
+
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
-func hello(w http.ResponseWriter, req *http.Request) {
-
-	fmt.Fprintf(w, "hello\n")
-}
-
-func headers(w http.ResponseWriter, req *http.Request) {
-
-	for name, headers := range req.Header {
-		for _, h := range headers {
-			fmt.Fprintf(w, "%v: %v\n", name, h)
-		}
-	}
-}
-
 func main() {
+	e := echo.New()
+	e.Use(middleware.RequestLogger())
 
-	http.HandleFunc("/hello", hello)
-	http.HandleFunc("/headers", headers)
+	e.GET("/", func(c *echo.Context) error {
+		return c.String(http.StatusOK, "Hello, World!")
+	})
 
-	http.ListenAndServe(":8090", nil)
+	if err := e.Start(":1323"); err != nil {
+		e.Logger.Error("failed to start server", "error", err)
+	}
 }
