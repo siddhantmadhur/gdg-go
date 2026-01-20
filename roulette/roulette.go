@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	val, err := russianRoulette(6)
+	val, err := russianRoulette(4)
 	if err != nil {
 		fmt.Printf("There was an error: %s\n", err.Error())
 		os.Exit(1)
