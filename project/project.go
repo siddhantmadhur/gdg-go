@@ -11,32 +11,41 @@ type PokeAPIResponse struct {
 	//Descriptions []string `json:"descriptions"`
 }
 
+var store = make(map[string]*PokeAPIResponse)
+
 func main() {
 	pokemon := "charizard"
-	_, err := GetPokemon(pokemon)
-	if err != nil {
-		panic(err)
+	for range 5 {
+		poke, err := GetPokemon(pokemon)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("Pokemon ID: %d\n", poke.Id)
 	}
 }
 
-func GetPokemon(pokemon string) (string, error) {
+func GetPokemon(pokemon string) (*PokeAPIResponse, error) {
+	if store[pokemon] != nil {
+		return store[pokemon], nil
+	}
+
 	url := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%s/", pokemon)
 	res, err := http.Get(url)
+	fmt.Printf("Sent API request to %s\n", url)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if res.StatusCode != 200 {
-		return "", fmt.Errorf("Status not 200: %d", res.StatusCode)
+		return nil, fmt.Errorf("Status not 200: %d", res.StatusCode)
 	}
 
 	decoder := json.NewDecoder(res.Body)
 	var pokedex PokeAPIResponse
 	err = decoder.Decode(&pokedex)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	fmt.Printf("ID: %d\n", pokedex.Id)
-
-	return "", nil
+	store[pokemon] = &pokedex
+	return &pokedex, nil
 }
